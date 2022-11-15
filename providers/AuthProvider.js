@@ -4,8 +4,6 @@ import * as SecureStore from 'expo-secure-store';
 
 const AuthContext = React.createContext();
 
-
-
 const AuthProvider = (props) => {
 
   const [state, dispatch] = React.useReducer(
@@ -18,7 +16,6 @@ const AuthProvider = (props) => {
             isLoading: false,
           };
         case 'LOGIN_POST':
-          console.log('LOGIN POST')
           return {
             ...prevState,
             isLoading: true
@@ -26,8 +23,6 @@ const AuthProvider = (props) => {
   
         ;
         case 'LOGIN_SUCCESS':
-          console.log('LOGIN SUCCESS')
-
           return {
             ...prevState,
             isLoading: false,
@@ -38,8 +33,6 @@ const AuthProvider = (props) => {
           };
   
         case 'LOGIN_FAIL':
-          console.log('LOGIN FAIL')
-
           return {
             ...prevState,
             isLoading: false,
@@ -68,8 +61,6 @@ const AuthProvider = (props) => {
   const authContext = React.useMemo(
       () => ({
         signIn: async ( username, password ) => {
-          console.log('action called')
-  
           dispatch({
               type: 'LOGIN_POST',
             });
@@ -110,23 +101,7 @@ const AuthProvider = (props) => {
                   payload: error,
                 });
               });
-
-
-              // dispatch({
-              //   type: 'LOGIN_SUCCESS',
-              //   payload: res.json(),
-              // });
-              
         },
-       // signOut: () => dispatch({ type: 'SIGN_OUT' }),
-        // signUp: async (data) => {
-        //   // In a production app, we need to send user data to server and get a token
-        //   // We will also need to handle errors if sign up failed
-        //   // After getting token, we need to persist the token using `SecureStore`
-        //   // In the example, we'll use a dummy token
-  
-        //   dispatch({ type: 'SIGN_IN', payload: res.json() });
-        // },
       }),
       []
   );
