@@ -95,13 +95,20 @@ const AuthProvider = (props) => {
                 }
               })
               .catch(error => {
-                console.log('caught errror', error)
                 dispatch({
                   type: 'LOGIN_FAILURE',
                   payload: error,
                 });
               });
         },
+        signOut: async () => {
+          dispatch({type:"LOGOUT"});
+          if(Platform.OS === 'web') {
+            localStorage.removeItem("token");
+          } else {
+              await SecureStore.deleteItemAsync("token");
+          }
+        }
       }),
       []
   );

@@ -36,7 +36,7 @@ const StackNav = () => {
 }
 
 const CustomDrawerContent= (props) => {
-const { state } = useAuthContext();
+const { state, authContext } = useAuthContext();
 const {username, email} = state;
 
 return (
@@ -78,7 +78,9 @@ return (
             </View>
             <DrawerItemList {...props} />
         </DrawerContentScrollView>
-        <TouchableOpacity style={{
+        <TouchableOpacity 
+            onPress={() => authContext.signOut()}
+            style={{
                 position:'absolute',
                 bottom:25,
                 left:0,
