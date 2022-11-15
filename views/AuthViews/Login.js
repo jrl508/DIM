@@ -5,10 +5,7 @@ import { useAuthContext } from '../../providers/AuthProvider';
 const Login = () => {
     const [username, setUsername] = React.useState('');
     const [password, setPassword] = React.useState('');
-    const [error, setError] = React.useState(null);
-
-    const { state , authContext } = useAuthContext();
-    console.log("state: ", state);
+    const { authContext } = useAuthContext();
 
     return (
         <View style={styles.container}>
