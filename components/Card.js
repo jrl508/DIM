@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View } from 'react-native';
+import {StyleSheet, View } from 'react-native';
 import CustomButton from './CustomButton';
 
 const Card = ({children, buttonText, navigation, target}) => {

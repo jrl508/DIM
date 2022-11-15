@@ -1,46 +1,14 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, Button, TouchableOpacity } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
+import { StyleSheet, Text, View, TextInput, Platform, TouchableOpacity } from 'react-native';
+import { useAuthContext } from '../../providers/AuthProvider';
 
 const Login = () => {
-    const [username, setUsername] = React.useState(null);
-    const [password, setPassword] = React.useState(null);
+    const [username, setUsername] = React.useState('');
+    const [password, setPassword] = React.useState('');
     const [error, setError] = React.useState(null);
 
-    const getValueFor = async (key) => {
-        let result = await SecureStore.getItemAsync(key);
-        if (result) {
-          alert("🔐 Here's your value 🔐 \n" + result);
-        } else {
-          alert('No values stored under that key.');
-        }
-      }
-
-    const submitLogin = async () => {
-        const response = await fetch('http://10.0.0.109:3005/user/login', {
-            method:'POST',
-            headers: {
-               'Accept': 'application/json',
-               'Content-Type':'application/json',
-            },
-            body: JSON.stringify({
-                username,
-                password
-            })
-        }).then(res => {
-            const payload = res.json()
-            return payload;
-        }).catch(err => {
-            return console.error(err);
-        })
-        if(response.error) {
-            setError(response.message)
-        } else if (response.message === "Success") {
-            setError(null);
-            const t = response.token.split(" ")[1]
-            await SecureStore.setItemAsync("token", t);
-        }
-    }
+    const { state , authContext } = useAuthContext();
+    console.log("state: ", state);
 
     return (
         <View style={styles.container}>
@@ -57,13 +25,13 @@ const Login = () => {
                     onChangeText={setPassword}
                     value={password}
                 />
-                <TouchableOpacity onPress={() => submitLogin()} style= {styles.button}>
+                <TouchableOpacity onPress={() => authContext.signIn(username,password)} style= {styles.button}>
                     <Text style={styles.button_text}>
                         Login
                     </Text>
                 </TouchableOpacity>
                 <Text>
-                    {error}
+
                 </Text>
             </View>
         </View>
@@ -85,10 +53,13 @@ const styles = StyleSheet.create({
     borderColor: '#cecece'
   },
   login_box: {
+    marginHorizontal: 'auto',
     backgroundColor: 'white',
     justifyContent:'center',
     padding: 12,
     borderRadius: 5,
+    minWidth:Platform.OS === 'web' ? 500 : null,
+    height: Platform.OS === 'web' ? 300 : null,
   },
   button: {
     backgroundColor:'#66bce8',
