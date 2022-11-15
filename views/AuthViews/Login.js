@@ -1,6 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, Platform, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Platform, Button, TouchableOpacity } from 'react-native';
 import { useAuthContext } from '../../providers/AuthProvider';
+import * as SecureStore from 'expo-secure-store';
+
 
 const Login = () => {
     const [username, setUsername] = React.useState('');
@@ -16,7 +18,8 @@ const Login = () => {
                     onChangeText={setUsername}
                     value={username}
                 /> 
-                <TextInput 
+                <TextInput
+                    secureTextEntry 
                     style={styles.input}
                     placeholder='Password'
                     onChangeText={setPassword}
@@ -27,9 +30,6 @@ const Login = () => {
                         Login
                     </Text>
                 </TouchableOpacity>
-                <Text>
-
-                </Text>
             </View>
         </View>
     );
