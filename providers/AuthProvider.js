@@ -18,7 +18,7 @@ const AuthProvider = (props) => {
         case 'LOGIN_POST':
           return {
             ...prevState,
-            isLoading: true
+            isLoading: true,
           }
   
         ;
@@ -30,13 +30,19 @@ const AuthProvider = (props) => {
             token: action.token,
             username: action.username,
             email: action.email,
+            loggingIn: false,
+            error: {}
           };
   
         case 'LOGIN_FAIL':
           return {
             ...prevState,
             isLoading: false,
-            error: action.error
+            loggingIn: false,
+            error: {
+              type: 'login',
+              message: action.error,
+            }
           }
           ;
         case 'LOGOUT':
@@ -45,6 +51,27 @@ const AuthProvider = (props) => {
             token: null,
             isLoggedIn: false,
           };
+        case 'REGISTER_POST':
+          return {
+            ...prevState,
+            isLoading: true
+          }
+        case 'REGISTER_SUCCESS':
+
+            return {
+              ...prevState,
+              isLoading: false,
+              loggingIn: true
+            }
+        case 'REGISTER_FAIL':
+            return {
+                ...prevState,
+                isLoading: false,
+                error: {
+                  type: 'register',
+                  message: action.error,
+                }
+            }
       }
     },
     {
@@ -52,26 +79,29 @@ const AuthProvider = (props) => {
       email: null,
       token: null,
       isLoading: false,
-      error: null,
       isLoggedIn: false,
+      loggingIn: false,
+      error: {}
     }
   );
   
   
   const authContext = React.useMemo(
       () => ({
-        signIn: async ( username, password ) => {
+        signIn: async (credentials) => {
+          const {username, password} = credentials;
+          const lcun = username.toLowerCase();
           dispatch({
               type: 'LOGIN_POST',
             });
-            const result = await fetch('http://10.0.0.109:3005/user/login', {
+              await fetch('http://10.0.0.109:3005/user/login', {
               method:'POST',
               headers: {
                  'Accept': 'application/json',
                  'Content-Type':'application/json',
               },
               body: JSON.stringify({
-                  username,
+                  username: lcun,
                   password
               })
               })
@@ -90,13 +120,13 @@ const AuthProvider = (props) => {
                 } else{
                   dispatch({
                     type: 'LOGIN_FAIL',
-                    payload: data
+                    ...data
                   })
                 }
               })
               .catch(error => {
                 dispatch({
-                  type: 'LOGIN_FAILURE',
+                  type: 'LOGIN_FAIL',
                   payload: error,
                 });
               });
@@ -108,6 +138,34 @@ const AuthProvider = (props) => {
           } else {
               await SecureStore.deleteItemAsync("token");
           }
+        },
+        register: async (credentials) => {
+          const {email, username, password} = credentials;
+          dispatch({type: 'REGISTER_POST'});
+          const result = await fetch('http://10.0.0.109:3005/user/register', {
+            method:'POST',
+            headers: {
+               'Accept': 'application/json',
+               'Content-Type':'application/json',
+            },
+            body: JSON.stringify({
+                email,
+                username,
+                password
+            })
+            })
+            .then(async res => {
+              const data = await res.json();
+              if(res.status === 201) {
+                dispatch({type: "REGISTER_SUCCESS"});
+              } else {
+                dispatch({type: "REGISTER_FAIL", ...data});
+              }
+            })
+            .catch(error => {
+              dispatch({type: "REGISTER_FAIL", payload: error});
+            })
+            return result;
         }
       }),
       []

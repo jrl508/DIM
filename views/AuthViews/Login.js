@@ -1,17 +1,52 @@
 import React from 'react';
 import { StyleSheet, Text, View, TextInput, Platform, Button, TouchableOpacity } from 'react-native';
 import { useAuthContext } from '../../providers/AuthProvider';
-import * as SecureStore from 'expo-secure-store';
-
 
 const Login = () => {
+    const [registerMode, setRegisterMode] = React.useState(false);
     const [username, setUsername] = React.useState('');
+    const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
-    const { authContext } = useAuthContext();
+    const [confirmPassword, setConfirmPassword] = React.useState('');
+    const { state, authContext } = useAuthContext();
+    const { signIn, register } = authContext;
+    const {loggingIn, error} = state;
+
+    console.log(state)
+
+    const handleSubmit = () => {
+        if(registerMode) {
+            register({email,username,password});
+        } else {
+            signIn({username, password});
+        }
+    }
+    
+    React.useEffect(() => {
+        if(loggingIn){
+            signIn({username, password})
+        }
+    },[loggingIn])
 
     return (
         <View style={styles.container}>
             <View style={styles.login_box}>
+                <Text style={{
+                    textAlign:'center',
+                    fontSize: 20,
+                    marginBottom: 18,
+                    fontWeight: '600'
+                    }}>
+                    {registerMode ? "Sign Up" : "Login"}
+                </Text>
+                {registerMode && (
+                    <TextInput
+                    style={styles.input}
+                    placeholder='Email'
+                    onChangeText={setEmail}
+                    value={email}
+                />
+                )}
                 <TextInput
                     style={styles.input}
                     placeholder='Username'
@@ -25,9 +60,44 @@ const Login = () => {
                     onChangeText={setPassword}
                     value={password}
                 />
-                <TouchableOpacity onPress={() => authContext.signIn(username,password)} style= {styles.button}>
+                {!registerMode && !!error.type && error.type === 'login' && (
+                    <Text style={{
+                        textAlign: 'center',
+                        color:'red',
+                        marginBottom: 10
+                        }}>
+                        {error.message}
+                    </Text>
+                    )}
+                {registerMode && (
+                    <TextInput
+                    secureTextEntry 
+                    style={styles.input}
+                    placeholder='Confirm Password'
+                    onChangeText={setConfirmPassword}
+                    value={confirmPassword}
+                />
+                )}
+                <View style={{
+                    marginBottom: 18,
+                    flexDirection: 'row',
+                    justifyContent:'space-between'
+                }}>
+                    <Text>
+                        {registerMode ? "Already have an account?" : "Don't have an account?"} 
+                    </Text>
+                    <Text 
+                        onPress={() => setRegisterMode(!registerMode)}
+                        style={{
+                        color: '#66bce8',
+                        fontWeight: "600",
+                    }}>
+                       {registerMode ? "Sign In": "Sign Up"}
+                    </Text>
+                </View>
+                <TouchableOpacity onPress={() => handleSubmit()} style= {styles.button}>
                     <Text style={styles.button_text}>
-                        Login
+                        {registerMode ? "Submit" : "Login"}
                     </Text>
                 </TouchableOpacity>
             </View>
