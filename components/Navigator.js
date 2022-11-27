@@ -1,37 +1,55 @@
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { StyleSheet, Text, View, TextInput, Platform, TouchableOpacity } from 'react-native';
+import { Text, View, TouchableOpacity } from 'react-native';
 import { 
     createDrawerNavigator,
     DrawerContentScrollView,
     DrawerItemList,
-    DrawerItem,
-    useDrawerProgress,
  } from '@react-navigation/drawer';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Dashboard from '../views/Dashboard';
 import SearchView from '../views/SearchView';
 import Projects from '../views/Projects';
 import Login from '../views/AuthViews/Login';
-import {useAuthContext } from '../providers/AuthProvider';
-
+import { useAuthContext } from '../providers/AuthProvider';
+import { Ionicons } from '@expo/vector-icons';
 
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
+const Tab = createBottomTabNavigator();
 
 
-const StackNav = () => {
+const TabNav = () => {
 
     return (
-        <Stack.Navigator>
-            <Stack.Group screenOptions={{
-                headerShown: false
-            }}>
-                <Stack.Screen name='Home' component={Dashboard} />
-                <Stack.Screen name='Explore' component={SearchView} />
-                <Stack.Screen name='Projects' component={Projects} />
-            </Stack.Group>
-        </Stack.Navigator>
+        <Tab.Navigator
+        initialRouteName='Home'
+        screenOptions={({ route }) => ({
+            headerShown: false,
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+  
+              if (route.name === 'Home') {
+                iconName = focused
+                  ? 'home'
+                  : 'home-outline';
+              } else if (route.name === 'Explore') {
+                iconName = focused ? 'ios-search' : 'ios-search-outline';
+              } else if (route.name === 'Projects') {
+                iconName = focused ? 'briefcase-sharp' : 'briefcase-outline';
+              }
+  
+              return <Ionicons name={iconName} size={size} color={color} />;
+            },
+            
+          })}
+        >
+                <Tab.Screen name='Projects' component={Projects} />
+                <Tab.Screen name='Home' component={Dashboard} />
+                <Tab.Screen name='Explore' component={SearchView} />
+        </Tab.Navigator>
     )
 }
 
@@ -109,8 +127,8 @@ const { isLoggedIn } = state;
         <NavigationContainer>
           {isLoggedIn ?
             <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
-                <Drawer.Screen name='Dashboard' component={StackNav} />
-                <Drawer.Screen name='Settings' component={StackNav} />
+                <Drawer.Screen name='Dashboard' component={TabNav} />
+                <Drawer.Screen name='Settings' component={TabNav} />
 
             </Drawer.Navigator>
             :
