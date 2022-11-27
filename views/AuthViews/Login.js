@@ -12,8 +12,6 @@ const Login = () => {
     const { signIn, register } = authContext;
     const {loggingIn, error} = state;
 
-    console.log(state)
-
     const handleSubmit = () => {
         if(registerMode) {
             register({email,username,password});
