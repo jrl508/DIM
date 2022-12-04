@@ -10,23 +10,38 @@ import {
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Dashboard from '../views/Dashboard';
 import SearchView from '../views/SearchView';
-import Projects from '../views/Projects';
+import Projects from '../views/ProjectViews/Projects';
+import ProjectIP from '../views/ProjectViews/ProjectIP';
 import Login from '../views/AuthViews/Login';
 import { useAuthContext } from '../providers/AuthProvider';
 import { Ionicons } from '@expo/vector-icons';
+import Settings from '../views/Settings';
 
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
 
+const ProjectViewStack = () => {
+  return (
+    <Stack.Navigator 
+      screenOptions={{
+        headerShown: false,
+      }}
+      initialRouteName='ProjectsList'>
+      <Stack.Screen name="ProjectList" component={Projects} />
+      <Stack.Screen name="ProjectIP" component={ProjectIP} />
+    </Stack.Navigator>
+  )
+}
+
 
 const TabNav = () => {
 
     return (
         <Tab.Navigator
-        initialRouteName='Home'
-        screenOptions={({ route }) => ({
+          initialRouteName='Home'
+          screenOptions={({ route }) => ({
             headerShown: false,
             tabBarIcon: ({ focused, color, size }) => {
               let iconName;
@@ -46,7 +61,7 @@ const TabNav = () => {
             
           })}
         >
-                <Tab.Screen name='Projects' component={Projects} />
+                <Tab.Screen name='Projects' component={ProjectViewStack} />
                 <Tab.Screen name='Home' component={Dashboard} />
                 <Tab.Screen name='Explore' component={SearchView} />
         </Tab.Navigator>
@@ -127,9 +142,8 @@ const { isLoggedIn } = state;
         <NavigationContainer>
           {isLoggedIn ?
             <Drawer.Navigator drawerContent={(props) => <CustomDrawerContent {...props} />}>
-                <Drawer.Screen name='Dashboard' component={TabNav} />
-                <Drawer.Screen name='Settings' component={TabNav} />
-
+                <Drawer.Screen name='Workshop' component={TabNav} />
+                <Drawer.Screen name='Settings' component={Settings} />
             </Drawer.Navigator>
             :
             <Stack.Navigator>
