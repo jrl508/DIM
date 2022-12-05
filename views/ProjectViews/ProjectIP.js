@@ -1,5 +1,7 @@
-import { StyleSheet, Text, View, TextInput, Platform, KeyboardAvoidingView } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, Platform, TouchableOpacity, ScrollView, SafeAreaView, Button } from 'react-native';
 import Select from '../../components/Select';
+import { Ionicons } from '@expo/vector-icons';
 
 const typeData = [
     {
@@ -22,33 +24,74 @@ const typeData = [
 ]
 
 const ProjectIP = () => {
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [projectType, setProjectType] = useState(null);
+  const [supplies, setSupplies] = useState(['']);
+
+  const handleSubmit = () => {
+    const payload = {
+      title,
+      description,
+      projectType,
+      supplies
+    }
+    console.log(payload)
+  }
   return (
-    <KeyboardAvoidingView behavior='position' style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.scroll_view}>
         <Text>Project Details</Text>
-        <TextInput style={styles.input} placeholder='Project Title' />
-        <TextInput textAlignVertical='top'
+        <TextInput style={styles.input} placeholder='Project Title' value={title} onChangeText={setTitle}/>
+        <TextInput
+            textAlignVertical='top'
+            value={description}
+            onChangeText={setDescription}
             multiline
             numberOfLines={5}
             minHeight={Platform.OS === 'ios' ? 90 : null}
             style={styles.input} 
             placeholder='Project Description'
             />
-        <Select data={typeData} />
-        {/* <TextInput style={styles.input} placeholder='Project Type' /> */}
-        <View>
+        <Select data={typeData} onSelect={setProjectType} />
+        <View style={styles.supply_container}>
+        <View style={styles.supply_header}>
           <Text>Supply List</Text>
+          <View style={{flexDirection: 'row', alignItems:'center'}}>
+          <TouchableOpacity onPress={() => setSupplies([...supplies, ''])}>
+            <Ionicons name='add' size={25} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => {
+            setSupplies(supplies.slice(0,-1))
+          }}>
+            <Ionicons name='remove' size={25} />
+          </TouchableOpacity>
+          </View>
         </View>
-        <TextInput style={styles.input} placeholder='Item' />
-        <TextInput style={styles.input} placeholder='Item' />
-        <TextInput style={styles.input} placeholder='Item' />
-    </KeyboardAvoidingView>
+        {supplies.map((x, index) => (
+          <TextInput key={index} 
+          style={styles.input}
+          placeholder='Item'
+          value={supplies[index]}
+          onChange={(event) => {
+            const {text} = event.nativeEvent;
+            const newSupplies = [...supplies];
+            newSupplies[index] = text;
+            setSupplies(newSupplies);
+          }}/>
+          ))}
+        </View>
+        <Button title='Submit' onPress={handleSubmit}/>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 25,
+    paddingVertical: 25,
+    paddingHorizontal:5,
     backgroundColor: 'white'
   },
   input: {
@@ -58,6 +101,14 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderColor: '#cecece'
   },
+  supply_header: {
+    justifyContent:'space-between',
+    alignItems:'center',
+    flexDirection: 'row'
+  },
+  scroll_view: {
+    paddingHorizontal: 15,
+  }
 });
 
 export default ProjectIP;
