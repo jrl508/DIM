@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import {StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
+import {StyleSheet, View, Text, TouchableOpacity, FlatList, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 
 const Select = ({...props}) => {
     const [open, setOpen] = useState(false);
     const [selected, setSelected] = useState(null);
-    const { data } = props;
+    const { data, onSelect } = props;
     const [listData, setListData] = useState( data || [{title: "Empty List", id:0}])
 
     const handleSelect = (item) => {
         setSelected(item);
+        onSelect(item);
         setOpen(!open);
     }
 
@@ -24,11 +25,15 @@ const Select = ({...props}) => {
 
     return (
         <TouchableOpacity style={styles.container} onPress={() => setOpen(!open)}>
-            { open ? 
-            <FlatList style={styles.list} data={listData} renderItem={({item}) => {
-            return (<Item item={item} />)
-        }} 
-        />
+            { open ? (
+                <View style={styles.list}>
+                    {listData.map((item, index) => <Item key={index} item={item} /> )}
+                </View>
+        //     <FlatList style={styles.list} data={listData} renderItem={({item}) => {
+        //     return (<Item item={item} />)
+        // }} 
+        // />
+        )
             :
             <Text style={selected ? styles.selected_label : styles.label}>{ selected ? selected.title : 'Select Option'}</Text>
             }
@@ -50,7 +55,7 @@ const styles = StyleSheet.create({
         borderColor: '#cecece',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        maxHeight: 150
+        //maxHeight: 150
     },
     icon: {
         width: 25,
