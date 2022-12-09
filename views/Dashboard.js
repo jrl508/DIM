@@ -63,7 +63,7 @@ const Dashboard = ({ navigation }) => {
                 projects.map((proj) => {
                   return (
                     <View key={proj._id}>
-                      <TouchableOpacity onPress={() => console.log(proj)}>
+                      <TouchableOpacity>
                         <Text>{proj.title}</Text>
                       </TouchableOpacity>
                     </View>
