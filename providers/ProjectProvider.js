@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useMemo, useContext } from "react";
-
+import { BACKEND_URL } from "@env";
 const ProjectContext = createContext();
 
 const ProjectProvider = (props) => {
@@ -51,7 +51,7 @@ const ProjectProvider = (props) => {
         dispatch({
           type: "FIND_USER_PROJECTS_GET",
         });
-        await fetch(`http://10.0.0.165:3005/projects/${userId}`, {
+        await fetch(`${BACKEND_URL}/projects/${userId}`, {
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -68,6 +68,7 @@ const ProjectProvider = (props) => {
           })
           .catch((error) => {
             dispatch({ type: "FIND_USER_PROJECTS_FAIL" });
+
             console.log(error);
           });
       },
