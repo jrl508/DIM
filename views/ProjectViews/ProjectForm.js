@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,61 +8,54 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
-  Button,
 } from "react-native";
 import Select from "../../components/Select";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthContext } from "../../providers/AuthProvider";
+import { useProjectContext } from "../../providers/ProjectProvider";
 
-const typeData = [
-  {
-    title: "Automotive",
-    id: 1,
-  },
-  {
-    title: "Home Improvement",
-    id: 2,
-  },
-  {
-    title: "Electrical",
-    id: 3,
-  },
-  {
-    title: "Plumbing",
-    id: 4,
-  },
-];
+const typeData = ["Automotive", "Home Improvement", "Electrical", "Plumbing"];
 
-const ProjectIP = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [projectType, setProjectType] = useState(null);
-  const [supplies, setSupplies] = useState([""]);
+const ProjectForm = ({ route, navigation, initialValues, handleSubmit }) => {
+  const [title, setTitle] = useState(initialValues.title);
+  const [description, setDescription] = useState(initialValues.description);
+  const [projectType, setProjectType] = useState(initialValues.type);
+  const [supplies, setSupplies] = useState(initialValues.supplies);
+  const { projectContext } = useProjectContext();
   const { state } = useAuthContext();
+  const { getProjectsByUser } = projectContext;
   const { id } = state;
 
-  const handleSubmit = async () => {
-    const payload = {
-      title,
-      description,
-      type: projectType.title,
-      supplies,
-      user: id,
-    };
-
-    await fetch("http://10.0.0.165:3005/project/create", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ ...payload }),
-    })
-      .then(async (res) => {
-        res.status === 201 && console.log(await res.json());
-      })
-      .catch((err) => console.log("Error!!! : ", err));
+  const initProject = (project) => {
+    setTitle(project.title);
+    setDescription(project.description);
+    setProjectType(project.type);
+    setSupplies(project.supplies);
   };
+
+  const payload = {
+    title,
+    description,
+    type: projectType,
+    supplies,
+    user: id,
+  };
+
+  const handlePress = async (payload) => {
+    await handleSubmit(payload)
+      .then(() => {
+        getProjectsByUser(id);
+      })
+      .catch((err) => {
+        alert(err);
+      });
+  };
+  useEffect(() => {
+    navigation.addListener("focus", () => {
+      initProject(initialValues);
+    });
+  }, [initialValues]);
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scroll_view}>
@@ -83,7 +76,11 @@ const ProjectIP = () => {
           style={styles.input}
           placeholder="Project Description"
         />
-        <Select data={typeData} onSelect={setProjectType} />
+        <Select
+          data={typeData}
+          initialVal={projectType}
+          onSelect={setProjectType}
+        />
         <View style={styles.supply_container}>
           <View style={styles.supply_header}>
             <Text>Supply List</Text>
@@ -115,7 +112,13 @@ const ProjectIP = () => {
             />
           ))}
         </View>
-        <Button title="Submit" onPress={handleSubmit} />
+
+        <TouchableOpacity onPress={() => handlePress(payload)}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={{ fontSize: 16 }}>Add Step</Text>
+            <Ionicons name="arrow-forward" size={20} />
+          </View>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -145,4 +148,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProjectIP;
+export default ProjectForm;

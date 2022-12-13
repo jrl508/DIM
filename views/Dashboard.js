@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { useAuthContext } from "../providers/AuthProvider";
 import { useProjectContext } from "../providers/ProjectProvider";
@@ -20,13 +21,11 @@ const Dashboard = ({ navigation }) => {
 
   useEffect(() => {
     if (!ready) {
-      Promise.all(getProjectsByUser(id)).then(() => {
+      Promise.all([getProjectsByUser(id)]).then(() => {
         setReady(true);
       });
     }
   }, [ready]);
-
-  console.log(projects.length);
 
   return (
     <View style={styles.container}>
@@ -63,7 +62,16 @@ const Dashboard = ({ navigation }) => {
                 projects.map((proj) => {
                   return (
                     <View key={proj._id}>
-                      <TouchableOpacity>
+                      <TouchableOpacity
+                        onPress={() =>
+                          navigation.navigate("Projects", {
+                            screen: "EditProject",
+                            params: {
+                              ...proj,
+                            },
+                          })
+                        }
+                      >
                         <Text>{proj.title}</Text>
                       </TouchableOpacity>
                     </View>
@@ -84,7 +92,7 @@ const Dashboard = ({ navigation }) => {
             disabled={!ready}
             style={{ alignItems: "center" }}
             onPress={() =>
-              navigation.navigate("Projects", { screen: "ProjectIP" })
+              navigation.navigate("Projects", { screen: "NewProject" })
             }
           >
             <Text>Start A New Project</Text>
