@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo/vector-icons": "^13.0.0",
     "@expo/webpack-config": "^0.17.0",
     "@react-navigation/bottom-tabs": "^6.4.1",
     "@react-navigation/drawer": "^6.5.0",
@@ -22,11 +23,11 @@
     "react-native": "0.69.6",
     "react-native-gesture-handler": "~2.5.0",
     "react-native-reanimated": "~2.9.1",
-    "react-native-web": "~0.18.7",
-    "@expo/vector-icons": "^13.0.0"
+    "react-native-web": "~0.18.7"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9"
+    "@babel/core": "^7.12.9",
+    "react-native-dotenv": "^3.4.6"
   },
   "private": true
 }
