@@ -1,6 +1,7 @@
 import React from "react";
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
+import { BACKEND_URL } from "@env";
 
 const AuthContext = React.createContext();
 
@@ -90,7 +91,7 @@ const AuthProvider = (props) => {
         dispatch({
           type: "LOGIN_POST",
         });
-        await fetch("http://10.0.0.165:3005/user/login", {
+        await fetch(`${BACKEND_URL}/user/login`, {
           method: "POST",
           headers: {
             Accept: "application/json",
@@ -138,7 +139,7 @@ const AuthProvider = (props) => {
       register: async (credentials) => {
         const { email, username, password } = credentials;
         dispatch({ type: "REGISTER_POST" });
-        const result = await fetch("http://10.0.0.165:3005/user/register", {
+        const result = await fetch(`${BACKEND_URL}/user/register`, {
           method: "POST",
           headers: {
             Accept: "application/json",
