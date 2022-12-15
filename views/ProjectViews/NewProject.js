@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { useAuthContext } from "../../providers/AuthProvider";
+import React from "react";
 import ProjectForm from "./ProjectForm";
 import { BACKEND_URL } from "@env";
 
 const NewProject = ({ navigation }) => {
-  const { state } = useAuthContext();
-  const { id } = state;
   const initialVal = {
     title: "",
     description: "",
     type: "",
     supplies: [""],
+    steps: [],
   };
 
   const handleSubmit = async (payload) => {
-    console.log("called");
-    console.log(payload);
     await fetch(`${BACKEND_URL}/projects/create`, {
       method: "POST",
       headers: {
@@ -25,7 +21,6 @@ const NewProject = ({ navigation }) => {
       body: JSON.stringify({ ...payload }),
     })
       .then(async (res) => {
-        console.log("THEN");
         res.status === 201 && console.log(await res.json());
       })
       .catch((err) => console.log("Error!!! : ", err));

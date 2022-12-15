@@ -8,19 +8,40 @@ import {
   TouchableOpacity,
   ScrollView,
   SafeAreaView,
+  Modal,
 } from "react-native";
 import Select from "../../components/Select";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthContext } from "../../providers/AuthProvider";
 import { useProjectContext } from "../../providers/ProjectProvider";
+import StepForm from "./StepForm";
+import { BACKEND_URL } from "@env";
 
 const typeData = ["Automotive", "Home Improvement", "Electrical", "Plumbing"];
+
+const createFormData = (photo, body = {}) => {
+  const data = new FormData();
+
+  data.append("photo", {
+    name: photo.fileName,
+    type: photo.type,
+    uri: Platform.OS === "ios" ? photo.uri.replace("file://", "") : photo.uri,
+  });
+
+  Object.keys(body).forEach((key) => {
+    data.append(key, body[key]);
+  });
+
+  return data;
+};
 
 const ProjectForm = ({ route, navigation, initialValues, handleSubmit }) => {
   const [title, setTitle] = useState(initialValues.title);
   const [description, setDescription] = useState(initialValues.description);
   const [projectType, setProjectType] = useState(initialValues.type);
   const [supplies, setSupplies] = useState(initialValues.supplies);
+  const [steps, setSteps] = useState(initialValues.steps);
+  const [stepModalOpen, setStepModalOpen] = useState(false);
   const { projectContext } = useProjectContext();
   const { state } = useAuthContext();
   const { getProjectsByUser } = projectContext;
@@ -31,6 +52,7 @@ const ProjectForm = ({ route, navigation, initialValues, handleSubmit }) => {
     setDescription(project.description);
     setProjectType(project.type);
     setSupplies(project.supplies);
+    setSteps(project.steps);
   };
 
   const payload = {
@@ -39,6 +61,20 @@ const ProjectForm = ({ route, navigation, initialValues, handleSubmit }) => {
     type: projectType,
     supplies,
     user: id,
+  };
+
+  const handleUploadPhoto = (photo) => {
+    fetch(`${BACKEND_URL}/api/upload`, {
+      method: "POST",
+      body: createFormData(photo, { userId: id }),
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        console.log("response", response);
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
   };
 
   const handlePress = async (payload) => {
@@ -59,7 +95,9 @@ const ProjectForm = ({ route, navigation, initialValues, handleSubmit }) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scroll_view}>
-        <Text>Project Details</Text>
+        <Text style={{ fontSize: 15, fontWeight: "600", marginVertical: 15 }}>
+          Project Details
+        </Text>
         <TextInput
           style={styles.input}
           placeholder="Project Title"
@@ -82,10 +120,13 @@ const ProjectForm = ({ route, navigation, initialValues, handleSubmit }) => {
           onSelect={setProjectType}
         />
         <View style={styles.supply_container}>
-          <View style={styles.supply_header}>
-            <Text>Supply List</Text>
+          <View style={styles.header}>
+            <Text style={{ fontSize: 15, fontWeight: "600" }}>Supply List</Text>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <TouchableOpacity onPress={() => setSupplies([...supplies, ""])}>
+              <TouchableOpacity
+                style={{ marginRight: 15 }}
+                onPress={() => setSupplies([...supplies, ""])}
+              >
                 <Ionicons name="add" size={25} />
               </TouchableOpacity>
               <TouchableOpacity
@@ -112,11 +153,51 @@ const ProjectForm = ({ route, navigation, initialValues, handleSubmit }) => {
             />
           ))}
         </View>
+        <View style={styles.header}>
+          <Text style={{ fontSize: 15, fontWeight: "600", marginVertical: 15 }}>
+            Steps
+          </Text>
+          <TouchableOpacity onPress={() => setStepModalOpen(true)}>
+            <Ionicons name="add" size={25} />
+          </TouchableOpacity>
+        </View>
+        <Modal visible={stepModalOpen} animationType="slide">
+          <SafeAreaView>
+            <View style={{ paddingVertical: 25, paddingHorizontal: 10 }}>
+              <View style={styles.header}>
+                <Text style={{ fontSize: 15, fontWeight: "600" }}>
+                  Step {steps.length + 1}
+                </Text>
+                <Ionicons
+                  name="close"
+                  size={25}
+                  onPress={() => setStepModalOpen(false)}
+                />
+              </View>
 
-        <TouchableOpacity onPress={() => handlePress(payload)}>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Text style={{ fontSize: 16 }}>Add Step</Text>
-            <Ionicons name="arrow-forward" size={20} />
+              <StepForm />
+            </View>
+          </SafeAreaView>
+        </Modal>
+        <TouchableOpacity
+          style={{
+            marginTop: 40,
+          }}
+          onPress={() => handlePress(payload)}
+        >
+          <View
+            style={{
+              backgroundColor: "#66bce8",
+              height: 40,
+              justifyContent: "center",
+              alignItems: "center",
+              borderRadius: 4,
+              marginVertical: 10,
+            }}
+          >
+            <Text style={{ fontSize: 16, color: "white", fontWeight: "600" }}>
+              Save Project
+            </Text>
           </View>
         </TouchableOpacity>
       </ScrollView>
@@ -138,10 +219,11 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderColor: "#cecece",
   },
-  supply_header: {
+  header: {
     justifyContent: "space-between",
     alignItems: "center",
     flexDirection: "row",
+    marginVertical: 15,
   },
   scroll_view: {
     paddingHorizontal: 15,
